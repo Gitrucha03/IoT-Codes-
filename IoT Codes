@@ -1,0 +1,458 @@
+Experiment No.: 01 
+Statement : Make running light pattern of 5 LEDs. It should run in both the directions continuously.
+Code : 
+// Define the pins for the 5 LEDs
+const int ledPins[] = {2, 3, 4, 5, 6};
+const int numLeds = 5;
+
+void setup() {
+  // Set up LED pins as outputs
+  for (int i = 0; i < numLeds; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+}
+
+void loop() {
+  // Run the lights from left to right
+  for (int i = 0; i < numLeds; i++) {
+    digitalWrite(ledPins[i], HIGH);
+    delay(1000);  // Adjust the delay for the speed of the running lights
+    digitalWrite(ledPins[i], LOW);
+  }
+
+  // Run the lights from right to left
+  for (int i = numLeds - 1; i >= 0; i--) {
+    digitalWrite(ledPins[i], HIGH);
+    delay(1000);  // Adjust the delay for the speed of the  running lights
+    digitalWrite(ledPins[i], LOW);
+  }
+}
+
+
+
+
+
+Experiment No.: 02 
+Statement : Make experiment 1 work with two switches. One switch press would result running of LEDs in one direction, while the second switch press would result running of LEDs in opposite direction.
+Code : 
+// Define the pins for the 5 LEDs and the two switches
+const int ledPins[] = {2, 3, 4, 5, 6};
+const int switchPin1 = 7;  // Switch for running in one direction
+const int switchPin2 = 8;  // Switch for running in the opposite direction
+
+void setup() {
+  // Set up LED pins as outputs
+  for (int i = 0; i < 5; i++) {
+    	pinMode(ledPins[i], OUTPUT);
+  }
+  // Set up switch pins as inputs with pull-up resistors
+  pinMode(switchPin1, INPUT_PULLUP);
+  pinMode(switchPin2, INPUT_PULLUP);
+}
+
+void loop() {
+  // Check the state of the first switch
+  if (digitalRead(switchPin1) == LOW) {
+    	runPatternForward();
+    	delay(200); // Debounce delay
+  }
+
+  // Check the state of the second switch
+  if (digitalRead(switchPin2) == LOW) {
+    runPatternBackward();
+    delay(200); // Debounce delay
+  }
+}
+
+void runPatternForward() {
+  for (int i = 0; i < 5; i++) {
+    digitalWrite(ledPins[i], HIGH);
+    delay(100); // Adjust the delay as needed
+    digitalWrite(ledPins[i], LOW);
+  }
+}
+
+void runPatternBackward() {
+  for (int i = 4; i >= 0; i--) {
+    digitalWrite(ledPins[i], HIGH);
+    delay(100); // Adjust the delay as needed
+    digitalWrite(ledPins[i], LOW);
+  }
+}
+
+
+
+
+Experiment No.: 03 
+Statement : Make a light intensity meter that represent light intensity on 5 LEDs, such that all LEDs would glow for maximum light, no LED would glow for dark condition, and likewise for in between light intensities.
+Code : 
+// Define the pins for the LDR and the 5 LEDs
+const int ldrPin = A0;      // Pin connected to the LDR
+const int ledPins[] = {2, 3, 4, 5, 6}; // Pins connected to the 5 LEDs
+const int numLeds = 5;
+
+void setup() {
+  // Set up LED pins as outputs
+  for (int i = 0; i < numLeds; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+  Serial.begin(9600); // Initialize serial communication for debugging
+}
+
+void loop() {
+  // Read the analog value from the LDR
+  int ldrValue = analogRead(ldrPin);
+
+  // Map the LDR value to the range of LEDs (0 to numLeds - 1)
+  int ledLevel = map(ldrValue, 0, 1023,0,numLeds);
+
+  // Display the light intensity on the LEDs
+  displayLightIntensity(ledLevel);
+
+  // Print the LDR value and LED level to the serial monitor (optional)
+  Serial.print("LDR Value: ");
+  Serial.print(ldrValue);
+  Serial.print(" | LED Level: ");
+  Serial.println(ledLevel);
+  delay(500); // Adjust the delay as needed
+}
+
+void displayLightIntensity(int level) {
+  // Turn off all LEDs
+  for (int i = 0; i < numLeds; i++) {
+    digitalWrite(ledPins[i], LOW);
+  }
+
+  // Turn on LEDs up to the specified level
+  for (int i = 0; i <= level; i++) {
+    digitalWrite(ledPins[i], HIGH);
+  }
+}
+
+
+
+
+Experiment No.: 04
+Statement : Fade and brighten 5 LEDs alternatively.
+Code : 
+// Define the pins for the 5 LEDs
+const int ledPins[] = {3, 5, 6, 9, 10};
+const int numLeds = 5;
+
+void setup() {
+  // Set all LED pins as outputs
+  for (int i = 0; i < numLeds; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+}
+
+void loop() {
+  // Fade in and out each LED one by one
+  for (int i = 0; i < numLeds; i++) {
+    fadeLedIn(ledPins[i]);
+    delay(500); // Adjust the delay as needed
+    fadeLedOut(ledPins[i]);
+    delay(500); // Adjust the delay as needed
+  }
+}
+
+void fadeLedIn(int pin) {
+  // Fade in the LED
+  for (int brightness = 0; brightness <= 255; brightness++) {
+    analogWrite(pin, brightness);
+    delay(5); // Adjust the delay for smooth fading
+  }
+}
+
+void fadeLedOut(int pin) {
+  // Fade out the LED
+  for (int brightness = 255; brightness >= 0; brightness--) {
+    analogWrite(pin, brightness);
+    delay(5); // Adjust the delay for smooth fading
+  }
+  // Turn off the LED after fading out
+  digitalWrite(pin, LOW);
+}
+
+
+
+
+Experiment No.: 05
+Statement : Make a street light controller.
+Code : 
+const int LDRPin = A0;  // Analog pin for the photoresistor
+const int ledPin = 3;  // Pin where the LED for the street light is connected
+void setup() {
+  pinMode(LDRPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Read the analog value from the photoresistor
+  int lightLevel = analogRead(LDRPin);
+
+  // Check if it's dark (below the threshold) and turn on the street light
+  if(lightLevel>50)
+    analogWrite(ledPin,0);
+  else if(50<lightLevel<60)
+     analogWrite(ledPin,50);
+  else if(20<lightLevel<50)
+    analogWrite(ledPin,150);
+  else if(0<lightLevel<20)
+     analogWrite(ledPin,255);
+  // Add a delay to avoid rapid changes in the light level
+  Serial.print("LDR Value: ");
+  Serial.println(lightLevel);
+  delay(500);
+}
+
+
+
+
+Experiment No.: 06
+Statement : Design a 4-bit counter.
+Code : 
+const int ledPins[] = {2, 3, 4, 5};  // Change these pins as per your setup
+const int switchPin = 7;              // Change this pin as per your setup
+
+// Variables
+int counter = 0;
+int switchState = 0;
+int lastSwitchState = 0;
+
+void setup() {
+  // Initialize LEDs as outputs
+  for (int i = 0; i < 4; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+
+  // Initialize switch as input
+  pinMode(switchPin, INPUT);
+
+  // Set initial state of LEDs
+  updateLEDs();
+}
+
+void loop() {
+  // Read the state of the switch
+  switchState = digitalRead(switchPin);
+
+  // Check if the switch state has changed
+  if (switchState != lastSwitchState) {
+    if (switchState == HIGH) {
+      // Increment the counter when the switch is pressed
+      counter = (counter + 1) % 16;
+      updateLEDs();
+    }
+    delay(50); // Debounce delay
+  }
+
+  // Save the current switch state for comparison
+  lastSwitchState = switchState;
+}
+
+// Function to update LEDs based on the current counter value
+void updateLEDs() {
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(ledPins[i], bitRead(counter, i));
+  }
+}
+
+
+
+
+
+Experiment No.: 07
+Statement : Blink an LED with two switches. One switch for increasing the blinking rate and other for decreasing the blinking rate.
+Code : 
+const int ledPin = 4;
+const int increaseSwitchPin = 2;
+const int decreaseSwitchPin = 3;
+
+int blinkInterval = 1000; // Initial blinking interval in
+milliseconds
+void setup() {
+pinMode(ledPin, OUTPUT);
+pinMode(increaseSwitchPin, INPUT_PULLUP);
+pinMode(decreaseSwitchPin, INPUT_PULLUP);
+}
+void loop() {
+// Check if the increase switch is pressed
+if (digitalRead(increaseSwitchPin) == LOW) {
+increaseBlinkInterval();
+}
+
+// Check if the decrease switch is pressed
+if (digitalRead(decreaseSwitchPin) == LOW) {
+decreaseBlinkInterval();
+}
+
+// Blink the LED
+digitalWrite(ledPin, HIGH);
+delay(blinkInterval);
+digitalWrite(ledPin, LOW);
+delay(blinkInterval);
+}
+
+void increaseBlinkInterval() {
+blinkInterval = max(50, blinkInterval - 50); // Decrease
+interval by 50ms, with a minimum of 50ms
+}
+
+void decreaseBlinkInterval() {
+blinkInterval = min(2000, blinkInterval + 50); // Increase
+interval by 50ms, with a maximum of 2000ms
+}
+
+
+
+
+
+Experiment No.: 08
+Statement : Turn ON/OFF five LEDs individually via serial monitor window. 
+Code : 
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(2,OUTPUT);
+  pinMode(3,OUTPUT);
+  pinMode(4,OUTPUT);
+  pinMode(5,OUTPUT);
+  pinMode(6,OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  char key;
+  if(Serial.available()>0)
+  key = Serial.read();
+  switch(key){
+    case '1':
+      digitalWrite(2,HIGH);
+      break;
+      
+    case '2':
+      digitalWrite(2,LOW);
+      break;
+
+    case '3':
+      digitalWrite(3,HIGH);
+      break;
+      
+    case '4':
+      digitalWrite(3,LOW);
+      break;
+
+    case '5':
+      digitalWrite(4,HIGH);
+      break;
+      
+    case '6':
+      digitalWrite(4,LOW);
+      break;
+
+    case '7':
+      digitalWrite(5,HIGH);
+      break;
+      
+    case '8':
+      digitalWrite(5,LOW);
+      break;
+
+    case '9':
+      digitalWrite(6,HIGH);
+      break;
+      
+    case 'a':
+      digitalWrite(6,LOW);
+      break;
+    
+    
+  }
+}
+
+
+
+
+
+Experiment No.: 09
+Statement : Lit an LED with brightness equal to 0%, 25%, 50%, 75%, 100% via serial monitor window.
+Code : 
+int led = 3;       
+int brightness = 0;
+
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(led,OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  char key;
+  if(Serial.available()>0)
+  key = Serial.read();
+  switch(key){
+    case '1':
+      brightness = 255;
+      analogWrite(led, brightness);
+      break;
+    
+    case '2':
+      brightness = 192;
+      analogWrite(led, brightness);
+      break;
+
+    case '3':
+      brightness = 128;
+      analogWrite(led, brightness);
+      break;
+    
+    case '4':
+      brightness = 64;
+      analogWrite(led, brightness);
+      break;
+    
+    case '5':
+      brightness = 0 ;
+      analogWrite(led, brightness);
+      break;
+  }
+}
+
+
+
+
+
+Experiment No.: 10
+Statement : Blink an LED in accordance with the brightness. Blinking frequency increases with
+increase in brightness.
+Code : 
+const int ledPin = 3;      // Pin number for the LED
+const int ldrPin = A0;  // Pin number for the ldr
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int lightLevel = analogRead(ldrPin);
+  
+  // Map the light level to a blinking frequency
+  int blinkInterval = map(lightLevel, 0, 1023, 100, 1000);
+
+  digitalWrite(ledPin, HIGH); // Turn on the LED
+  delay(blinkInterval);
+
+  digitalWrite(ledPin, LOW);  // Turn off the LED
+  delay(blinkInterval);
+  // Print the light level and blinking frequency to the serial monitor
+  Serial.print("Light Level: ");
+  Serial.print(lightLevel);
+  Serial.print("\tBlinking Frequency: ");
+  Serial.print(1000 / blinkInterval); // Frequency in Hz
+  Serial.println(" Hz");
+}
